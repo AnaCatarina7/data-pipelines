@@ -179,13 +179,14 @@
   <h1 id="pageTitle">Fronius Pipeline</h1>
   <div class="sub">Solar data ingestion · CrateDB &amp; InfluxDB</div>
 
-  <!-- source dropdown: below header, right-aligned -->
   <div class="source-row">
     <div class="source-select-wrap">
-      <select id="sourceSelect" onchange="switchSource(this.value)">
-        <option value="fronius">Fronius</option>
-        <option value="drive">Balcão Digital</option>
-      </select>
+    <!-- dropdown -->
+    <select id="sourceSelect" onchange="switchSource(this.value)">
+        <option value="fronius">Fronius (GitHub)</option>
+        <option value="shared_drive">Balcão Digital (Google Drive)</option>
+        <option value="drive_own">Balcão Digital - (Personal Folder Google Drive)</option>
+    </select>
     </div>
   </div>
 
@@ -226,32 +227,41 @@
   document.getElementById("start_date").value = d.toISOString().split("T")[0];
 
   function switchSource(source) {
-    if (source === "drive") {
-      document.getElementById("pageTitle").textContent = "Balcão Digital";
-      document.getElementById("fileCardTitle").textContent = "Files in Google Drive";
-      document.getElementById("fileList").innerHTML = '<span class="fmsg">Google Drive integration not yet available.</span>';
-    } else {
-      document.getElementById("pageTitle").textContent = "Fronius Pipeline";
-      document.getElementById("fileCardTitle").textContent = "Files in repository";
-      loadFiles();
-    }
+      if (source === "fronius") {
+          document.getElementById("pageTitle").textContent = "Fronius Pipeline";
+          document.querySelector(".sub").textContent = "Solar data ingestion · CrateDB & InfluxDB";
+          document.getElementById("fileCardTitle").textContent = "Files in repository";
+          loadFiles("fronius");
+
+      } else if (source === "shared_drive") {
+          document.getElementById("pageTitle").textContent = "Balcão Digital";
+          document.querySelector(".sub").textContent = "Energy consumption data ingestion · CrateDB";
+          document.getElementById("fileCardTitle").textContent = "Files in Google Drive (Tutor)";
+          loadFiles("shared_drive");
+
+      } else if (source === "drive_own") {
+          document.getElementById("pageTitle").textContent = "Balcão Digital";
+          document.querySelector(".sub").textContent = "Energy consumption data ingestion · CrateDB";
+          document.getElementById("fileCardTitle").textContent = "Files in Google Drive (Own)";
+          loadFiles("drive_own");
+      }
   }
 
-  function loadFiles() {
-    const list = document.getElementById("fileList");
-    list.innerHTML = '<span class="fmsg">Loading...</span>';
-    fetch("/files")
-      .then(r => r.json())
-      .then(data => {
-        const files = data.files || [];
-        if (!files.length) { list.innerHTML = '<span class="fmsg">No files found.</span>'; return; }
-        list.innerHTML = files.map(f =>
-          `<div class="file-row"><span class="fdot"></span><span>${f}</span></div>`
-        ).join("");
-      })
-      .catch(() => {
-        list.innerHTML = '<span class="fmsg">Could not load file list.</span>';
-      });
+  function loadFiles(source = "fronius") {
+      const list = document.getElementById("fileList");
+      list.innerHTML = '<span class="fmsg">Loading...</span>';
+      fetch(`/files?source=${source}`)
+          .then(r => r.json())
+          .then(data => {
+              const files = data.files || [];
+              if (!files.length) { list.innerHTML = '<span class="fmsg">No files found.</span>'; return; }
+              list.innerHTML = files.map(f =>
+                  `<div class="file-row"><span class="fdot"></span><span>${f}</span></div>`
+              ).join("");
+          })
+          .catch(() => {
+              list.innerHTML = '<span class="fmsg">Could not load file list.</span>';
+          });
   }
 
   loadFiles();
@@ -284,7 +294,7 @@
     const res = await fetch("/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ start_date: startDate, days_back: daysBack }),
+      body: JSON.stringify({ start_date: startDate, days_back: daysBack, source: document.getElementById("sourceSelect").value }),
     });
     if (!res.ok) {
       const err = await res.json();
