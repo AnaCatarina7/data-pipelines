@@ -163,7 +163,7 @@ def list_files():
         files   = [f["name"] for f in r.json() if isinstance(f, dict) and "name" in f]
         return jsonify({"files": files})
 
-    elif source in ("shared_drive", "drive_own"):
+    # elif source in ("shared_drive", "drive_own"):
         folder_id = (
             os.getenv("BALCAO_SHARED_FOLDER_ID")
             if source == "shared_drive"
@@ -209,7 +209,60 @@ def list_files():
         except Exception as e:
             return jsonify({"files": [], "error": str(e)})
 
-    return jsonify({"files": []})
+    elif source in ("shared_drive", "drive_own"):
+        folder_id = (
+            os.getenv("BALCAO_SHARED_FOLDER_ID")
+            if source == "shared_drive"
+            else os.getenv("BALCAO_OWN_FOLDER_ID")
+        )
+
+        try:
+            from google.oauth2 import service_account
+            from googleapiclient.discovery import build
+
+            raw = os.getenv("ACTC_DRIVE_CREDENTIALS")
+            if raw:
+                creds_raw = json.loads(raw)
+            else:
+                with open("/etc/secrets/ACTC-DriveCredentials.json") as f:
+                    creds_raw = json.load(f)
+
+            credentials = service_account.Credentials.from_service_account_info(
+                creds_raw,
+                scopes=["https://www.googleapis.com/auth/drive.readonly"]
+            )
+
+            drive = build("drive", "v3", credentials=credentials)
+
+            params = {
+                "q": f"'{folder_id}' in parents and trashed = false",
+                "fields": "files(id, name, size, modifiedTime)",
+                "supportsAllDrives": True,
+                "includeItemsFromAllDrives": True,
+            }
+
+            response = drive.files().list(**params).execute()
+            files = [f["name"] for f in response.get("files", [])]
+
+            return jsonify({
+                "files": files,
+                "debug": {
+                    "source": source,
+                    "folder_id": folder_id,
+                    "count": len(files)
+                }
+            })
+
+        except Exception as e:
+            return jsonify({
+                "files": [],
+                "error": str(e),
+                "debug": {
+                    "source": source,
+                    "folder_id": folder_id
+                }
+            })
+        return jsonify({"files": []})
 
 
 
