@@ -178,8 +178,21 @@ def list_files():
             if raw:
                 creds_raw = json.loads(raw)
             else:
-                with open("secrets/ACTC-DriveCredentials.json") as f:
-                    creds_raw = json.load(f)
+                secret_paths = [
+                    "/etc/secrets/ACTC-DriveCredentials.json",
+                    "secrets/ACTC-DriveCredentials.json",
+                    "ACTC-DriveCredentials.json",
+                ]
+
+                creds_raw = None
+                for path in secret_paths:
+                    if os.path.exists(path):
+                        with open(path) as f:
+                            creds_raw = json.load(f)
+                        break
+
+                if creds_raw is None:
+                    raise FileNotFoundError("ACTC-DriveCredentials.json não encontrado")
 
             credentials = service_account.Credentials.from_service_account_info(
                 creds_raw,
