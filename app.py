@@ -7,12 +7,15 @@ import requests
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, Response, stream_with_context
 
+
 app = Flask(__name__)
+
 
 
 # ── State ─────────────────────────────────────────────────────────────────────
 log_queue        = queue.Queue()  # holds log messages to stream to the browser
 pipeline_running = False          # prevents concurrent pipeline runs
+
 
 
 # ── Stdout capture ────────────────────────────────────────────────────────────
@@ -29,6 +32,7 @@ class QueueLogger:
 
     def flush(self):
         self.terminal.flush()
+
 
 
 # ── Pipeline runner ───────────────────────────────────────────────────────────
@@ -90,11 +94,13 @@ def run_pipeline(start_date: str, days_back: int, source: str):
         pipeline_running = False
 
 
+
 # ── Routes ────────────────────────────────────────────────────────────────────
 @app.route("/")
 def index():
     """Serves the main control panel."""
     return render_template("index.html")
+
 
 
 @app.route("/run", methods=["POST"])
@@ -122,6 +128,7 @@ def run():
     return jsonify({"status": "started"})
 
 
+
 @app.route("/stream")
 def stream():
     """Server-Sent Events endpoint — pushes log lines to the browser in real time."""
@@ -144,10 +151,12 @@ def stream():
     )
 
 
+
 @app.route("/status")
 def status():
     """Returns whether the pipeline is currently running (used by the frontend)."""
     return jsonify({"running": pipeline_running})
+
 
 
 @app.route("/files")
@@ -169,6 +178,10 @@ def list_files():
             if source == "shared_drive"
             else os.getenv("BALCAO_OWN_FOLDER_ID")
         )
+
+        if not folder_id:
+            return jsonify({"files": [], "error": "Folder ID não definido."}), 500
+
         try:
             from google.oauth2 import service_account
             from googleapiclient.discovery import build
@@ -200,14 +213,19 @@ def list_files():
             )
             drive    = build("drive", "v3", credentials=credentials)
             response = drive.files().list(
-                q=f"'{folder_id}' in parents",
-                fields="files(id, name, size, modifiedTime)"
+                q=f"'{folder_id}' in parents and trashed = false",
+                fields="files(id, name, size, modifiedTime)",
+                supportsAllDrives=True,
+                includeItemsFromAllDrives=True
             ).execute()
             files = [f["name"] for f in response.get("files", [])]
             return jsonify({"files": files})
 
         except Exception as e:
             return jsonify({"files": [], "error": str(e)})
+
+    return jsonify({"files": []})
+
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
