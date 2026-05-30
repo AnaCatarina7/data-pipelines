@@ -135,21 +135,20 @@ def stream():
     def generate():
         while True:
             try:
-                msg = log_queue.get(timeout=30)
+                msg = log_queue.get(timeout=25)
                 if msg == "__DONE__":
                     yield "data: __DONE__\n\n"
                     break
                 yield f"data: {msg.rstrip()}\n\n"
             except queue.Empty:
-                yield "data: [timeout] Sem resposta há 30s.\n\n"
-                break
+                # keep the SSE connection alive during long-running steps
+                yield ": keepalive\n\n"
 
     return Response(
         stream_with_context(generate()),
         mimetype="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
     )
-
 
 
 @app.route("/status")
