@@ -165,14 +165,6 @@ Typical configuration includes:
 - email service credentials
 - environment variables for deployment
 
-## Possible Improvements
-
-- Add a dedicated configuration file with example variables
-- Document each pipeline script separately
-- Add sample screenshots of the web interface
-- Include architecture and data flow diagrams
-- Add automated tests
-
 ## Purpose
 
 This repository was developed in the context of an internship project focused on data ingestion, monitoring and storage for energy-related datasets. The goal was not only to automate file processing, but also to build a reusable and extensible pipeline structure that can support multiple data sources and execution environments.
