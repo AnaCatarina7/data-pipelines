@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | Balcao Digital</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --bg-soft: #fbf9f5;
+      --panel: rgba(255, 252, 247, 0.92);
+      --panel-strong: #fffdfa;
+      --line: rgba(15, 23, 42, 0.08);
+      --line-strong: rgba(15, 23, 42, 0.12);
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f9f75;
+      --accent-dark: #0b7f5d;
+      --accent-2: #6d5efc;
+      --accent-2-soft: rgba(109, 94, 252, 0.08);
+      --success-soft: rgba(15, 159, 117, 0.10);
+      --warn-soft: rgba(217, 119, 6, 0.10);
+      --error-soft: rgba(161, 44, 123, 0.10);
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 8px 18px rgba(15, 23, 42, 0.05);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(109, 94, 252, 0.08), transparent 24%),
+        radial-gradient(circle at top right, rgba(15, 159, 117, 0.08), transparent 22%),
+        radial-gradient(circle at bottom center, rgba(15, 159, 117, 0.05), transparent 28%),
+        var(--bg);
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 42px 20px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 18px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .hero-copy {
+      flex: 1 1 420px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+      line-height: 1.05;
+      color: #1c1a16;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 720px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0.68rem 1.05rem;
+      border-radius: 12px;
+      border: 1px solid rgba(109, 94, 252, 0.22);
+      background: linear-gradient(135deg, rgba(109, 94, 252, 0.12), rgba(15, 159, 117, 0.08));
+      color: var(--accent-2);
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 10px 20px rgba(109, 94, 252, 0.10);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+      border-color: rgba(109, 94, 252, 0.34);
+      background: linear-gradient(135deg, rgba(109, 94, 252, 0.18), rgba(15, 159, 117, 0.12));
+      box-shadow: 0 12px 24px rgba(109, 94, 252, 0.14);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-bottom: 18px;
+    }
+
+    .two-col {
+      grid-template-columns: 1.15fr 0.95fr;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.45rem 1.55rem;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #acaaa6;
+      margin-bottom: 1rem;
+    }
+
+    .card-value {
+      font-size: clamp(26px, 3vw, 36px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      color: #1c1a16;
+    }
+
+    .card-note {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .section-heading {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      line-height: 1.2;
+      color: #1c1a16;
+    }
+
+    .section-note {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.88rem;
+    }
+
+    .split {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid #efebe4;
+    }
+
+    .split:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .split-label {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .split-value {
+      font-weight: 600;
+      text-align: right;
+      color: #1f2937;
+      font-size: 0.92rem;
+    }
+
+    .split-value.number {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: currentColor;
+      opacity: 0.8;
+    }
+
+    .status-pill.ok {
+      background: rgba(34, 197, 94, 0.12);
+      color: #166534;
+      border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    .status-pill.warn {
+      background: rgba(245, 158, 11, 0.12);
+      color: #92400e;
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .status-pill.error {
+      background: rgba(161, 44, 123, 0.12);
+      color: #8b1d5c;
+      border-color: rgba(161, 44, 123, 0.2);
+    }
+
+    .db-list,
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .db-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #efebe4;
+    }
+
+    .db-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .db-meta {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .pill.ok {
+      background: rgba(34, 197, 94, 0.12);
+      color: #166534;
+      border-color: rgba(34, 197, 94, 0.2);
+    }
+
+    .pill.warn {
+      background: rgba(245, 158, 11, 0.12);
+      color: #92400e;
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table th,
+    table td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid #efebe4;
+      font-size: 0.88rem;
+    }
+
+    table th {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    table tbody tr:hover {
+      background: rgba(15, 159, 117, 0.04);
+    }
+
+    td.cpe-cell {
+      font-weight: 700;
+      color: #1c1a16;
+      white-space: nowrap;
+    }
+
+    td.num-cell {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .notes-box {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: var(--bg-soft);
+      border: 1px solid #ece6dc;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1100px) {
+      .kpis,
+      .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .kpis,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .page {
+        padding: 24px 14px 36px;
+      }
+
+      .card {
+        padding: 1.15rem 1rem;
+      }
+
+      .top-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .btn-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    {% set status_text = (latest_run.get('status', 'N/A') | string | lower) %}
+    {% set status_class = 'warn' %}
+    {% if 'success' in status_text or 'done' in status_text or 'ok' in status_text %}
+      {% set status_class = 'ok' %}
+    {% elif 'error' in status_text or 'fail' in status_text %}
+      {% set status_class = 'error' %}
+    {% endif %}
+
+    <section class="topbar">
+      <div class="hero-copy">
+        <div class="eyebrow">Balcão Digital</div>
+        <h1>Operational dashboard</h1>
+        <p class="subtitle">
+          Overview of ingestion activity, database coverage, and latest pipeline execution status.
+        </p>
+      </div>
+
+      <div class="top-actions">
+        <a href="/" class="btn-secondary">Back to pipeline</a>
+      </div>
+    </section>
+
+    <section class="grid kpis">
+      <article class="card">
+        <div class="card-title">Type A records</div>
+        <div class="card-value">{{ "{:,}".format(kpis.get('total_balcao_digital', 0)).replace(",", ".") }}</div>
+        <div class="card-note">Current total stored in <strong>balcao_digital</strong>.</div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">Type B records</div>
+        <div class="card-value">{{ "{:,}".format(kpis.get('total_balcao_digital_consumo', 0)).replace(",", ".") }}</div>
+        <div class="card-note">Current total stored in <strong>balcao_digital_consumo</strong>.</div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">Distinct CPEs</div>
+        <div class="card-value">{{ kpis.get('distinct_cpes', 0) }}</div>
+        <div class="card-note">Number of unique installations identified in the main table.</div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">First entry</div>
+        <div class="card-value" style="font-size: 22px;">{{ kpis.get('first_entry', 'N/A') }}</div>
+        <div class="card-note">Start of the time coverage currently available in the database.</div>
+      </article>
+    </section>
+
+    <section class="grid two-col">
+      <article class="card">
+        <div class="card-title">Latest run</div>
+        <h2 class="section-heading">Latest pipeline run</h2>
+        <p class="section-note">
+          Summary of the most recent execution window and ingestion result.
+        </p>
+
+        <div class="split">
+          <div class="split-label">Status</div>
+          <div class="split-value">
+            <span class="status-pill {{ status_class }}">{{ latest_run.get('status', 'N/A') }}</span>
+          </div>
+        </div>
+        <div class="split">
+          <div class="split-label">Window</div>
+          <div class="split-value">{{ latest_run.get('run_date', 'N/A') }}</div>
+        </div>
+        <div class="split">
+          <div class="split-label">Files found</div>
+          <div class="split-value number">{{ latest_run.get('files_found', 0) }}</div>
+        </div>
+        <div class="split">
+          <div class="split-label">Files processed</div>
+          <div class="split-value number">{{ latest_run.get('files_processed', 0) }}</div>
+        </div>
+        <div class="split">
+          <div class="split-label">Inserted into balcao_digital</div>
+          <div class="split-value number">{{ latest_run.get('inserted_balcao_digital', 0) }}</div>
+        </div>
+        <div class="split">
+          <div class="split-label">Skipped in balcao_digital</div>
+          <div class="split-value number">{{ latest_run.get('skipped_balcao_digital', 0) }}</div>
+        </div>
+        <div class="split">
+          <div class="split-label">Inserted into balcao_digital_consumo</div>
+          <div class="split-value number">{{ latest_run.get('inserted_balcao_digital_consumo', 0) }}</div>
+        </div>
+        <div class="split">
+          <div class="split-label">Source</div>
+          <div class="split-value">{{ latest_run.get('source', 'N/A') }}</div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-title">Tables and targets</div>
+        <h2 class="section-heading">Tables and targets</h2>
+        <p class="section-note">
+          Active storage targets currently used by the Balcão Digital pipeline.
+        </p>
+
+        <div class="db-list">
+          {% for db in database_status %}
+          <div class="db-item">
+            <div>
+              <div style="font-weight:700;">{{ db.table }}</div>
+              <div class="db-meta">{{ db.label }}</div>
+            </div>
+            <div class="pill {{ 'ok' if db.active else 'warn' }}">
+              {{ 'active' if db.active else 'empty' }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="notes-box">
+          {{ latest_run.get('notes') or 'No execution notes available.' }}
+        </div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-title">CPE summary</div>
+        <h2 class="section-heading">CPE summary</h2>
+        <p class="section-note">
+          Consolidated view of records, coverage period, and active power values by installation.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>CPE</th>
+                <th>Total rows</th>
+                <th>First record</th>
+                <th>Last record</th>
+                <th>Average active power</th>
+                <th>Peak active power</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in cpe_summary %}
+              <tr>
+                <td class="cpe-cell">{{ row.cpe }}</td>
+                <td class="num-cell">{{ "{:,}".format(row.total_rows).replace(",", ".") }}</td>
+                <td>{{ row.first_tstamp }}</td>
+                <td>{{ row.last_tstamp }}</td>
+                <td class="num-cell">{{ row.avg_potencia_ativa }}</td>
+                <td class="num-cell">{{ row.max_potencia_ativa }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+  </main>
+</body>
+</html>
