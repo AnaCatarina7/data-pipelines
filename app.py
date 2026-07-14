@@ -63,7 +63,6 @@ def run_pipeline(start_date: str, days_back: int, source: str):
         os.environ["START_DATE"] = start_date
         os.environ["DAYS_BACK"] = str(days_back)
         os.environ["SOURCE"] = source
-        os.environ["BALCAO_GITHUB_MODE"] = "0"
 
         import importlib.util
         import pathlib
@@ -80,10 +79,6 @@ def run_pipeline(start_date: str, days_back: int, source: str):
             elif source == "drive_own":
                 folder_id = os.getenv("BALCAO_OWN_FOLDER_ID")
                 os.environ["BALCAO_FOLDER_ID"] = folder_id or ""
-
-            elif source == "balcao_github_tests":
-                os.environ["BALCAO_FOLDER_ID"] = ""
-                os.environ["BALCAO_GITHUB_MODE"] = "1"
 
             else:
                 os.environ["BALCAO_FOLDER_ID"] = ""
@@ -253,42 +248,6 @@ def list_files():
         except Exception as e:
             return jsonify({"files": [], "error": str(e)})
 
-    elif source == "balcao_github_tests":
-        try:
-            token = os.getenv("GITHUB_TOKEN")
-            headers = {"Authorization": f"token {token}"} if token else {}
-
-            tree_url = "https://api.github.com/repos/pedroccpimenta/datafiles/git/trees/master?recursive=1"
-            r = requests.get(tree_url, headers=headers, timeout=30)
-            r.raise_for_status()
-
-            tree = r.json().get("tree", [])
-            prefix = "eRedes - Balcão Digital/"
-
-            files = []
-            for item in tree:
-                path = item.get("path", "")
-                item_type = item.get("type", "")
-
-                if item_type != "blob":
-                    continue
-                if not path.startswith(prefix):
-                    continue
-
-                filename = path.split("/")[-1]
-                if filename.startswith("."):
-                    continue
-
-                # Normalize only the essential file metadata for display.
-                meta = normalize_files_metadata([filename])[0]
-                files.append(meta.get("display_title", filename))
-
-            files.sort()
-            return jsonify({"files": files})
-
-        except Exception as e:
-            return jsonify({"files": [], "error": str(e)})
-
     return jsonify({"files": []})
 
 
@@ -410,5 +369,6 @@ def histogram_png():
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
+    # Use the PORT environment variable if set (by Render), otherwise default to 5000.
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

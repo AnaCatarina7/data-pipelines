@@ -359,7 +359,6 @@
         <option value="fronius">Fronius (GitHub)</option>
         <option value="shared_drive">Balcão Digital (Google Drive)</option>
         <option value="drive_own">Balcão Digital - (Personal Folder Google Drive)</option>
-        <option value="balcao_github_tests">Balcão Digital - GitHub (Tests)</option>
       </select>
     </div>
   </div>
@@ -414,11 +413,6 @@
           document.querySelector(".sub").textContent = "Energy consumption data ingestion · CrateDB";
           document.getElementById("fileCardTitle").textContent = "Files in Google Drive (Own)";
           loadFiles("drive_own");
-      } else if (source === "balcao_github_tests") {
-          document.getElementById("pageTitle").textContent = "Balcão Digital";
-          document.querySelector(".sub").textContent = "Energy consumption data ingestion · CrateDB";
-          document.getElementById("fileCardTitle").textContent = "Files in GitHub repository (Tests)";
-          loadFiles("balcao_github_tests");
       }
   }
 

@@ -64,11 +64,92 @@ def get_kpis():
         connection.close()
 
 
+def get_latest_run_summary_real():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        max_a = fetch_one(cursor, "SELECT MAX(tstamp) FROM balcao_digital")[0]
+        max_b = fetch_one(cursor, "SELECT MAX(tstamp) FROM balcao_digital_consumo")[0]
+
+        latest_tstamp = None
+        if max_a and max_b:
+            latest_tstamp = max(max_a, max_b)
+        else:
+            latest_tstamp = max_a or max_b
+
+        count_a_latest_day = 0
+        count_b_latest_day = 0
+        distinct_cpes_latest_day = 0
+        latest_entry_a = str(max_a) if max_a else None
+        latest_entry_b = str(max_b) if max_b else None
+
+        if latest_tstamp:
+            latest_day = str(latest_tstamp)[:10]
+
+            row_a = fetch_one(cursor, """
+                SELECT COUNT(*)
+                FROM balcao_digital
+                WHERE DATE_FORMAT('%Y-%m-%d', tstamp) = ?
+            """, [latest_day])
+            count_a_latest_day = row_a[0] if row_a and row_a[0] is not None else 0
+
+            row_b = fetch_one(cursor, """
+                SELECT COUNT(*)
+                FROM balcao_digital_consumo
+                WHERE DATE_FORMAT('%Y-%m-%d', tstamp) = ?
+            """, [latest_day])
+            count_b_latest_day = row_b[0] if row_b and row_b[0] is not None else 0
+
+            row_cpes = fetch_one(cursor, """
+                SELECT COUNT(DISTINCT cpe)
+                FROM balcao_digital
+                WHERE DATE_FORMAT('%Y-%m-%d', tstamp) = ?
+            """, [latest_day])
+            distinct_cpes_latest_day = row_cpes[0] if row_cpes and row_cpes[0] is not None else 0
+
+            return {
+                "status": "success",
+                "run_date": latest_day,
+                "latest_entry_balcao_digital": latest_entry_a,
+                "latest_entry_balcao_digital_consumo": latest_entry_b,
+                "type_a_rows_latest_day": count_a_latest_day,
+                "type_b_rows_latest_day": count_b_latest_day,
+                "distinct_cpes_latest_day": distinct_cpes_latest_day,
+                "source": "CrateDB",
+                "notes": f"Live summary based on the latest day found in CrateDB ({latest_day}).",
+            }
+
+        return {
+            "status": "warn",
+            "run_date": None,
+            "latest_entry_balcao_digital": None,
+            "latest_entry_balcao_digital_consumo": None,
+            "type_a_rows_latest_day": 0,
+            "type_b_rows_latest_day": 0,
+            "distinct_cpes_latest_day": 0,
+            "source": "CrateDB",
+            "notes": "No records found in CrateDB yet.",
+        }
+
+    finally:
+        connection.close()
+
+
 def get_database_status():
-    return [
-        {"table": "balcao_digital", "label": "Power data (Type A)", "active": True},
-        {"table": "balcao_digital_consumo", "label": "Consumption data (Type B)", "active": True},
-    ]
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        total_a = fetch_one(cursor, "SELECT COUNT(*) FROM balcao_digital")[0] or 0
+        total_b = fetch_one(cursor, "SELECT COUNT(*) FROM balcao_digital_consumo")[0] or 0
+
+        return [
+            {"table": "balcao_digital", "label": "Power data (Type A)", "active": total_a > 0},
+            {"table": "balcao_digital_consumo", "label": "Consumption data (Type B)", "active": total_b > 0},
+        ]
+    finally:
+        connection.close()
 
 
 def get_cpe_summary():
@@ -183,6 +264,7 @@ def get_weekday_weekend_profile(selected_cpe=None):
         return result
     finally:
         connection.close()
+
 
 def get_histogram_points():
     connection = get_connection()

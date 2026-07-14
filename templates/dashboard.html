@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    
     :root {
       --bg: #f6f3ee;
       --bg-soft: #fbf9f5;
@@ -453,24 +454,24 @@
           <div class="split-value">{{ latest_run.get('run_date', 'N/A') }}</div>
         </div>
         <div class="split">
-          <div class="split-label">Files found</div>
-          <div class="split-value number">{{ latest_run.get('files_found', 0) }}</div>
+          <div class="split-label">Last Type A entry</div>
+          <div class="split-value">{{ latest_run.get('latest_entry_balcao_digital', 'N/A') }}</div>
         </div>
         <div class="split">
-          <div class="split-label">Files processed</div>
-          <div class="split-value number">{{ latest_run.get('files_processed', 0) }}</div>
+          <div class="split-label">Last Type B entry</div>
+          <div class="split-value">{{ latest_run.get('latest_entry_balcao_digital_consumo', 'N/A') }}</div>
         </div>
         <div class="split">
-          <div class="split-label">Inserted into balcao_digital</div>
-          <div class="split-value number">{{ latest_run.get('inserted_balcao_digital', 0) }}</div>
+          <div class="split-label">Type A rows on latest day</div>
+          <div class="split-value number">{{ latest_run.get('type_a_rows_latest_day', 0) }}</div>
         </div>
         <div class="split">
-          <div class="split-label">Skipped in balcao_digital</div>
-          <div class="split-value number">{{ latest_run.get('skipped_balcao_digital', 0) }}</div>
+          <div class="split-label">Type B rows on latest day</div>
+          <div class="split-value number">{{ latest_run.get('type_b_rows_latest_day', 0) }}</div>
         </div>
         <div class="split">
-          <div class="split-label">Inserted into balcao_digital_consumo</div>
-          <div class="split-value number">{{ latest_run.get('inserted_balcao_digital_consumo', 0) }}</div>
+          <div class="split-label">Distinct CPEs on latest day</div>
+          <div class="split-value number">{{ latest_run.get('distinct_cpes_latest_day', 0) }}</div>
         </div>
         <div class="split">
           <div class="split-label">Source</div>
